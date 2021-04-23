@@ -1,37 +1,36 @@
-import { getCustomRepository, Repository } from "typeorm"
-import { Message } from "../entities/Message"
-import { MessagesRepository } from "../repositories/MessagesRepository"
+import { getCustomRepository } from 'typeorm';
+
+import { MessagesRepository } from '../repositories/MessagesRepository';
 
 interface IMessageCreate {
-    admin_id?: string
-    text: string
-    user_id: string
+  admin_id?: string;
+  user_id: string;
+  text: string;
 }
 
 class MessagesService {
-    private messagesRepository: Repository <Message>
+  private messagesRepository: MessagesRepository;
 
-    constructor(){
-        this.messagesRepository = getCustomRepository(MessagesRepository)
-    }
-    async create({ admin_id, text, user_id }: IMessageCreate){
-        const message = this.messagesRepository.create({
-            admin_id,
-            text,
-            user_id
-        })
+  constructor() {
+    this.messagesRepository = getCustomRepository(MessagesRepository);
+  }
 
-        await this.messagesRepository.save(message)
-        return message
-    }
+  async create({ admin_id, user_id, text }: IMessageCreate) {
+    const message = this.messagesRepository.create({ admin_id, user_id, text });
 
-    async listarPorUsuario(user_id: string){
-        const list = await this.messagesRepository.find({
-            where: {user_id},
-            relations: ['user']
-        })
-        return list
-    }
+    await this.messagesRepository.save(message);
+
+    return message;
+  }
+
+  async listByUser(user_id: string) {
+    const list = await this.messagesRepository.find({
+      where: { user_id },
+      relations: ['user'],
+    });
+
+    return list;
+  }
 }
 
-export {MessagesService}
+export { MessagesService };
